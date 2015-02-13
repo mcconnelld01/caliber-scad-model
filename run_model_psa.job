@@ -1,0 +1,7 @@
+#$ -cwd -V
+#$ -l h_rt=1:00:00
+#$ -o logs
+#$ -e logs
+#$ -l h_vmem=4G
+
+Rscript markov_model.R $PATIENT $ITERATION $PATIENT_GROUP

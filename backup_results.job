@@ -1,0 +1,7 @@
+#$ -cwd -V
+#$ -l h_rt=1:00:00
+#$ -o logs
+#$ -e logs
+#$ -l h_vmem=4G
+
+tar -czf backup/results_`date +%Y%m%d_%H%M%S`.tar.gz output/
