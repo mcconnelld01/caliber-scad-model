@@ -7,7 +7,7 @@
 # Date: 2014
 ####################################################################################
 start_time = proc.time()
-memory.limit(4000)
+#memory.limit(4000)
 
 source("competing_risks.R")
 
