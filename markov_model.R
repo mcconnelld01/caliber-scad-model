@@ -370,9 +370,9 @@ load_patient = function(patient_file, patient_number){
 	}
 	# for individuals as opposed to populations fill in the age sex interaction
 	if(patient[,"sex"]==1){
-		patient[,"sex:age0"]==patient[,"age0"]
+		patient[,"sex:age0"]=patient[,"age0"]
 	} else if (patient[,"sex"]==1) {
-		patient[,"sex:age0"]==0
+		patient[,"sex:age0"]=0
 	}
 	# for populations the age0:sex variable contains the mean difference in age by sex mutiplied by
 	# the proportion of the population where sex==1
