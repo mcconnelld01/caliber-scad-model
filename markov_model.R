@@ -354,6 +354,33 @@ calculate_intervention_results = function(prediction_years, cycle_length_days, d
 	return(results)
 }
 
+##########################################################################################
+# load patient profile from csv file
+##########################################################################################
+load_patient = function(patient_file, patient_number){
+	patient = read.csv(patient_file,row.names=1)[patient_number,]
+	# R replaces : with . in column names undo this
+	names(patient) = gsub("\\.",":",names(patient))
+	
+	# add standardised versions of variables for use in model
+	standardisation_table = read.csv("input_data/standardisation.csv",row.names=1)
+	for(var in grep("_ori",names(patient),value=TRUE)){
+		new_var_name = gsub("_ori", "", var)
+		patient[,new_var_name] = (patient[,var]-standardisation_table["mu",new_var_name])/standardisation_table["sigma",new_var_name]
+	}
+	# for individuals as opposed to populations fill in the age sex interaction
+	if(patient[,"sex"]==1){
+		patient[,"sex:age0"]==patient[,"age0"]
+	} else if (patient[,"sex"]==1) {
+		patient[,"sex:age0"]==0
+	}
+	# for populations the age0:sex variable contains the mean difference in age by sex mutiplied by
+	# the proportion of the population where sex==1
+	
+	patient[,"(Intercept)"] = 1
+	return(as.matrix(patient, nrow=1))
+}
+
 
 ##########################################################################################
 # run the model for a particular patient profile
@@ -362,7 +389,7 @@ calculate_intervention_results = function(prediction_years, cycle_length_days, d
 # patient number indicates which decile to run model for
 # iteration number indicates which PSA iteration to use
 # iteration number of -1 indicates deterministic
-run_model = function(patient_number, iteration_number, patient_group, life_tables_only){
+run_model = function(patient_number, iteration_number, patient_group, patient_file="", life_tables_only=FALSE){
 	print(paste("Running model for patient: ",patient_number, " iteration: ", iteration_number,sep=""))
 	
 	# set the model life cycle and the cycle length
@@ -400,6 +427,8 @@ run_model = function(patient_number, iteration_number, patient_group, life_table
 		patient = patients_deciles[[patient_number]]
 	} else if(patient_group == "clinical"){
 		patient = patients_clinical[[patient_number]]
+	} else if(patient_group == "manual"){
+		patient = load_patient(patient_file, patient_number)
 	}
 	
 	# create total and CVD cost matrix of same dimension
@@ -450,6 +479,7 @@ args = commandArgs(trailingOnly=TRUE)
 pat = as.numeric(args[1])
 iter = as.numeric(args[2])
 patient_group = as.character(args[3])
+patient_file = ""
 
 if(is.na(pat)){
 	pat = 1
@@ -462,9 +492,14 @@ if(is.na(iter)){
 if(is.na(patient_group)){
 	patient_group = "clinical"
 	print(paste("patient group not provided setting to default group: ", patient_group, sep=""))
+} else if (patient_group=="manual") {
+	# load patient characteristics from disk
+	patient_file = as.character(args[4])	
 }
 
-run_model(pat, iter, patient_group, life_tables_only=FALSE)
+
+
+run_model(pat, iter, patient_group, patient_file, life_tables_only=FALSE)
 
 end_time = proc.time()
 print(paste("total run time: ",round((end_time["elapsed"]-start_time["elapsed"])/60,2)," mins", sep=""))
