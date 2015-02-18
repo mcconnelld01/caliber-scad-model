@@ -1,0 +1,1 @@
+grep -h found logs/summarise_results.job.* | awk '{ print $5 }' | sed "s/output\/model_results\//.\/run_model_single.sh /" | sed "s/\/ce_results_pat_/ /" | sed "s/_iteration_/ /" | sed "s/.csv\"//" > rerun_failed_iterations.sh

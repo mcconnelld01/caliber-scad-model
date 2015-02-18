@@ -3,4 +3,4 @@
 #$ -o logs
 #$ -e logs
 
-Rscript group_results.R $NUM_PATIENTS $PATIENT_GROUP
+Rscript group_results.R $NUM_PATIENTS $PATIENT_GROUP $INPUT_FILE

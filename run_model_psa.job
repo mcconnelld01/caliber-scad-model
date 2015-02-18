@@ -4,4 +4,4 @@
 #$ -e logs
 #$ -l h_vmem=4G
 
-Rscript markov_model.R $PATIENT $ITERATION $PATIENT_GROUP
+Rscript run_model.R $PATIENT $ITERATION $PATIENT_GROUP $INPUT_FILE
