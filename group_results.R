@@ -13,7 +13,7 @@ patient_file = ""
 
 if(is.na(num_pat)){
 	num_pat = 10
-	print(paste("patient not provided setting to default patient: ", num_pat, sep=""))
+	print(paste("number of patients not provided setting to default number of patients: ", num_pat, sep=""))
 }
 if(is.na(patient_group)){
 	patient_group = "deciles"
