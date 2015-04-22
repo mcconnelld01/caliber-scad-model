@@ -105,11 +105,7 @@ generate_max_price_plots = function(num_patients, patient_group, patient_file=""
 	
 	fe_5yr_prob = rep(0,num_patients)
 	for(p in 1:num_patients){
-		if(patient_group == "deciles"){
-			fe_5yr_prob[p] = patients[[p]][1,"ci_fe"]
-		} else {
-			fe_5yr_prob[p] = calculate_fe_5yr_risk(patients[[p]], survival_params)
-		}
+		fe_5yr_prob[p] = calculate_fe_5yr_risk(patients[[p]], survival_params)
 	}
 	
 	scenarios = c("fe_cvd")	
