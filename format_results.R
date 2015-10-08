@@ -105,68 +105,71 @@ generate_max_price_plots = function(num_patients, patient_group, patient_file=""
 	
 	fe_5yr_prob = rep(0,num_patients)
 	for(p in 1:num_patients){
-		fe_5yr_prob[p] = calculate_fe_5yr_risk(patients[[p]], survival_params)
+		fe_5yr_prob[p] = calculate_fe_5yr_risk(patients[[p]], survival_params)	
 	}
 	
 	scenarios = c("fe_cvd")	
 	HRs = c(0.9,0.8,0.7,0.6)
 	HR_labs = paste((1-HRs)*100,"%",sep="") 
 	thresholds = c(10000,20000,30000,40000)
+	cost_scenarios = c("total","cvd","chd")
 	
-	max_prices = list()
-	
-	for(scenario in scenarios){
-		for(HR in HRs){
-			for(threshold in thresholds){
-				name = paste(scenario,HR,sep="_")
-				nmb = ((all_data[paste("qalys_const_",name,sep=""),1:num_patients]-all_data["qalys_const_basecase_1",1:num_patients])*threshold -  (all_data[paste("total_costs_",name,sep=""),1:num_patients]-all_data["total_costs_basecase_1",1:num_patients])) 
-				max_price = nmb/all_data[paste("cycle_SCAD_",name,sep=""),1:num_patients]
-				max_prices[[paste(name,threshold,sep="_")]] = t(rbind(1:num_patients,fe_5yr_prob,max_price,gsub("_"," ",paste(toupper(scenario)," ",(1-HR)*100,"%",sep="")),paste("Threshold = \u00A3",formatC(threshold,format="d",big.mark=",")," per QALY",sep="")))
+	for(cost_scenario in cost_scenarios){
+		max_prices = list()
+		
+		for(scenario in scenarios){
+			for(HR in HRs){
+				for(threshold in thresholds){
+					name = paste(scenario,HR,sep="_")
+					nmb = ((all_data[paste("qalys_const_",name,sep=""),1:num_patients]-all_data["qalys_const_basecase_1",1:num_patients])*threshold -  (all_data[paste(cost_scenario,"_costs_",name,sep=""),1:num_patients]-all_data[paste(cost_scenario,"_costs_basecase_1",sep=""),1:num_patients])) 
+					max_price = nmb/all_data[paste("cycle_SCAD_",name,sep=""),1:num_patients]
+					max_prices[[paste(name,threshold,sep="_")]] = t(rbind(1:num_patients,fe_5yr_prob,max_price,gsub("_"," ",paste(toupper(scenario)," ",(1-HR)*100,"%",sep="")),paste("Threshold = \u00A3",formatC(threshold,format="d",big.mark=",")," per QALY",sep="")))
+				}
 			}
 		}
+		
+		graph_data = do.call("rbind", max_prices)
+		colnames(graph_data) = c("patient","fe_5yr_risk","max_price","scenario","threshold")
+		rownames(graph_data) = NULL
+		graph_data = as.data.frame(graph_data, stringsAsFactors=FALSE)
+		graph_data$patient = as.factor(as.numeric(graph_data$patient))	
+		levels(graph_data$patient) = patient_names
+		graph_data$fe_5yr_risk = as.numeric(graph_data$fe_5yr_risk)	
+		graph_data$max_price = as.numeric(graph_data$max_price)	
+		graph_data$scenario = as.factor(graph_data$scenario)	
+		
+		legend_title = "Treatment effect\n(hazard reduction)\non a typical\ncomposite trial\nendpoint of\nMI/stroke and\nCVD death"
+		
+		max_price_bar_plot = ggplot(graph_data, aes(x=patient,y=max_price,fill=scenario)) + 
+				geom_bar(position="dodge", stat="identity") +
+				scale_fill_grey(name=legend_title, labels=HR_labs) +
+				xlab("Risk Group") + 
+				ylab(enc2utf8("Maximum Annual Price (\u00A3)")) +
+				scale_y_continuous(labels=comma)+#,breaks=seq(0,max(graph_data$max_price + 100),100)) +
+				theme_bw() +
+				theme(legend.position="right", panel.margin = unit(1.5, "lines")) + 
+				facet_wrap( ~ threshold, ncol=2, scales="free")
+		ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_bars_",cost_scenario,".pdf",sep=""),plot=max_price_bar_plot,width=29,height=20,units="cm")
+		ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_",cost_scenario,".png",sep=""),plot=max_price_bar_plot,width=29,height=20,units="cm",dpi=300)
+		
+		max_price_line_plot = ggplot(graph_data, aes(x=fe_5yr_risk,y=max_price)) + 
+				geom_line(aes(colour=scenario,linetype=scenario)) +
+				geom_point(aes(shape=scenario)) +
+				scale_colour_grey(name=legend_title, labels=HR_labs) +
+				scale_linetype_discrete(name=legend_title, labels=HR_labs) +
+				scale_shape_discrete(name=legend_title, labels=HR_labs) +
+				xlab("Five Year CVD Event Risk") + 
+				ylab("Maximum Annual Price (\u00A3)") +
+				scale_y_continuous(labels=comma)+#,breaks=seq(0,max(graph_data$max_price + 100),100)) +
+				scale_x_continuous(labels=percent) +
+				theme_bw() +
+				theme(legend.position="right", panel.margin = unit(1.5, "lines")) + 
+				facet_wrap( ~ threshold, ncol=2, scales="free")
+		ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_lines_",cost_scenario,".pdf",sep=""),plot=max_price_line_plot,width=27,height=19,units="cm")
+		ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_lines_",cost_scenario,".png",sep=""),plot=max_price_line_plot,width=27,height=19,units="cm",dpi=300)
+		
+		write.csv(graph_data,file=paste("output/model_summary/",patient_group,"/max_price_",cost_scenario,".csv",sep=""))
 	}
-	
-	graph_data = do.call("rbind", max_prices)
-	colnames(graph_data) = c("patient","fe_5yr_risk","max_price","scenario","threshold")
-	rownames(graph_data) = NULL
-	graph_data = as.data.frame(graph_data, stringsAsFactors=FALSE)
-	graph_data$patient = as.factor(as.numeric(graph_data$patient))	
-	levels(graph_data$patient) = patient_names
-	graph_data$fe_5yr_risk = as.numeric(graph_data$fe_5yr_risk)	
-	graph_data$max_price = as.numeric(graph_data$max_price)	
-	graph_data$scenario = as.factor(graph_data$scenario)	
-	
-	legend_title = "Treatment effect\n(hazard reduction)\non a typical\ncomposite trial\nendpoint of\nMI/stroke and\nCVD death"
-	
-	max_price_bar_plot = ggplot(graph_data, aes(x=patient,y=max_price,fill=scenario)) + 
-			geom_bar(position="dodge", stat="identity") +
-			scale_fill_grey(name=legend_title, labels=HR_labs) +
-			xlab("Risk Group") + 
-			ylab(enc2utf8("Maximum Annual Price (\u00A3)")) +
-			scale_y_continuous(labels=comma)+#,breaks=seq(0,max(graph_data$max_price + 100),100)) +
-			theme_bw() +
-			theme(legend.position="right", panel.margin = unit(1.5, "lines")) + 
-			facet_wrap( ~ threshold, ncol=2, scales="free")
-	ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_bars.pdf",sep=""),plot=max_price_bar_plot,width=29,height=20,units="cm")
-	ggsave(filename=paste("output/model_summary/",patient_group,"/max_price.png",sep=""),plot=max_price_bar_plot,width=29,height=20,units="cm",dpi=300)
-	
-	max_price_line_plot = ggplot(graph_data, aes(x=fe_5yr_risk,y=max_price)) + 
-			geom_line(aes(colour=scenario,linetype=scenario)) +
-			geom_point(aes(shape=scenario)) +
-			scale_colour_grey(name=legend_title, labels=HR_labs) +
-			scale_linetype_discrete(name=legend_title, labels=HR_labs) +
-			scale_shape_discrete(name=legend_title, labels=HR_labs) +
-			xlab("Five Year CVD Event Risk") + 
-			ylab("Maximum Annual Price (\u00A3)") +
-			scale_y_continuous(labels=comma)+#,breaks=seq(0,max(graph_data$max_price + 100),100)) +
-			scale_x_continuous(labels=percent) +
-			theme_bw() +
-			theme(legend.position="right", panel.margin = unit(1.5, "lines")) + 
-			facet_wrap( ~ threshold, ncol=2, scales="free")
-	ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_lines.pdf",sep=""),plot=max_price_line_plot,width=27,height=19,units="cm")
-	ggsave(filename=paste("output/model_summary/",patient_group,"/max_price_lines.png",sep=""),plot=max_price_line_plot,width=27,height=19,units="cm",dpi=300)
-	
-	write.csv(graph_data,file=paste("output/model_summary/",patient_group,"/max_price.csv",sep=""))
 }
 
 summarise_ce_results = function(patient_number, num_iterations, patient_group){
@@ -179,19 +182,21 @@ summarise_ce_results = function(patient_number, num_iterations, patient_group){
 	summary_results[1,grep("^cycle",colnames(total_results))] = colSums(total_results[,grep("^cycle",colnames(total_results))])*cycle_length_days/365
 	summary_results[1,grep("^fe_",colnames(summary_results))] = summary_results[,grep("^fe_",colnames(summary_results))]*100
 	summary_results[1,grep("^fatal_",colnames(summary_results))] = summary_results[,grep("^fatal_",colnames(summary_results))]*100
-	for(iteration_number in 2:num_iterations){
-		filename=paste("output/model_results/",patient_group,"/ce_results_pat_",patient_number,"_iteration_",iteration_number,".csv",sep="")
-		if(file.exists(filename)){
-			iter_results = read.csv(file=filename)
-			iter_summary_results = iter_results[nrow(iter_results),]
-			iter_summary_results[1,grep("^cycle",colnames(iter_results))] = colSums(iter_results[,grep("^cycle",colnames(iter_results))])*cycle_length_days/365
-			iter_summary_results[1,grep("^fe_",colnames(iter_summary_results))] = iter_summary_results[,grep("^fe_",colnames(iter_summary_results))]*100
-			iter_summary_results[1,grep("^fatal_",colnames(iter_summary_results))] = iter_summary_results[,grep("^fatal_",colnames(iter_summary_results))]*100
-			summary_results = rbind(summary_results,iter_summary_results)
-			total_results = total_results + iter_results
-			iteration_count = iteration_count + 1
-		} else {
-			print(paste("file not found: ", filename,sep=""))
+	if(num_iterations>1){
+		for(iteration_number in 2:num_iterations){
+			filename=paste("output/model_results/",patient_group,"/ce_results_pat_",patient_number,"_iteration_",iteration_number,".csv",sep="")
+			if(file.exists(filename)){
+				iter_results = read.csv(file=filename)
+				iter_summary_results = iter_results[nrow(iter_results),]
+				iter_summary_results[1,grep("^cycle",colnames(iter_results))] = colSums(iter_results[,grep("^cycle",colnames(iter_results))])*cycle_length_days/365
+				iter_summary_results[1,grep("^fe_",colnames(iter_summary_results))] = iter_summary_results[,grep("^fe_",colnames(iter_summary_results))]*100
+				iter_summary_results[1,grep("^fatal_",colnames(iter_summary_results))] = iter_summary_results[,grep("^fatal_",colnames(iter_summary_results))]*100
+				summary_results = rbind(summary_results,iter_summary_results)
+				total_results = total_results + iter_results
+				iteration_count = iteration_count + 1
+			} else {
+				print(paste("file not found: ", filename,sep=""))
+			}
 		}
 	}
 	total_results = total_results[,-1]/iteration_count
