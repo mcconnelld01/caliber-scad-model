@@ -37,4 +37,4 @@ The model results are converted into the key results tables and plots used in th
 
 
 ### Accompanying Journal Article
-This model was used to produce the key results described in the journal article titled "Using electronic health records to predict costs and outcomes in chronic disease using the example of stable coronary artery disease". A link to the article will be published here once it is published.
+This model was used to produce the key results described in the journal article titled "Using electronic health records to predict costs and outcomes in stable coronary artery disease". The article is freely available here: http://heart.bmj.com/content/early/2016/02/10/heartjnl-2015-308850.full.
