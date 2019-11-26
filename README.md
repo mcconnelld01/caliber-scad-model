@@ -1,7 +1,7 @@
 ## CALIBER SCAD Model
 This is a lifetime health economic model for patients with stable coronary artery disease (SCAD). The model was parameterised using data from the [CALIBER](https://www.caliberresearch.org/) dataset which comprises linked electronic health records covering, primary care, secondary care, disease registry and mortality datasets based in the English NHS. 
 
-The model produces estimates of lifetime healthcare costs and quality adjusted life years (QALYs) for patients based on a set of baseline characteristics that determine theri risk of experiencing the modelled events. The model also produces estimates of the maximum price that the health service should be willing to pay for new treatments that reduce the risk of future events. For full details of the model please see the accompanying journal article and its technical appendices.
+The model produces estimates of lifetime healthcare costs and quality adjusted life years (QALYs) for patients based on a set of baseline characteristics that determine their risk of experiencing the modelled events. The model also produces estimates of the maximum price that the health service should be willing to pay for new treatments that reduce the risk of future events. For full details of the model please see the accompanying journal article and its technical appendices.
 
 ### Model Structure
 ![model structure](model_structure.png)
