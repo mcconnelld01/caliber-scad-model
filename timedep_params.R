@@ -2,7 +2,7 @@ source("timedep_functions.R")
 
 ## Parameters for testing only
 prediction_years=70
-#cycle_length_days=90
+cycle_length_days=90
 
 ## Enter the parameters
 

@@ -192,16 +192,16 @@ calculate_competing_risks_model = function(survival_params, patients, prediction
 	
 	# reduce the first CVD event hazard rates except stroke h
 	if(scenario == "fe_cvd" | scenario == "all_cvd") {
-		fe_mi_haz = apply_timedep_eff(fe_mi_haz[,1],treatment_HR[,"fe_mi_haz"])
-		fe_stroke_i_haz = apply_timedep_eff(fe_stroke_i_haz[,1],treatment_HR[,"fe_stroke_i_haz"])
-		fe_fatal_cvd_haz = apply_timedep_eff(fe_fatal_cvd_haz[,1],treatment_HR[,"fe_fatal_cvd_haz"])
+		fe_mi_haz[,1] = apply_timedep_eff(fe_mi_haz[,1],treatment_HR[,"fe_mi_haz"])
+		fe_stroke_i_haz[,1] = apply_timedep_eff(fe_stroke_i_haz[,1],treatment_HR[,"fe_stroke_i_haz"])
+		fe_fatal_cvd_haz[,1] = apply_timedep_eff(fe_fatal_cvd_haz[,1],treatment_HR[,"fe_fatal_cvd_haz"])
 	}
 	
 	# reduce the post event CVD mortality hazard rates
 	if(scenario == "all_cvd"){
-		fatal_cvd_post_mi_haz = apply_timedep_eff(fatal_cvd_post_mi_haz[,1] , treatment_HR[,"fatal_cvd_post_mi_haz"])
-		fatal_cvd_post_stroke_i_haz = apply_timedep_eff(fatal_cvd_post_stroke_i_haz[,1] , treatment_HR[,"fatal_cvd_post_stroke_i_haz"])
-		fatal_cvd_post_stroke_h_haz = apply_timedep_eff(fatal_non_cvd_post_stroke_h_haz[,1], treatment_HR[,"fatal_cvd_post_stroke_h_haz"])
+		fatal_cvd_post_mi_haz[,1] = apply_timedep_eff(fatal_cvd_post_mi_haz[,1] , treatment_HR[,"fatal_cvd_post_mi_haz"])
+		fatal_cvd_post_stroke_i_haz[,1] = apply_timedep_eff(fatal_cvd_post_stroke_i_haz[,1] , treatment_HR[,"fatal_cvd_post_stroke_i_haz"])
+		fatal_cvd_post_stroke_h_haz[,1] = apply_timedep_eff(fatal_non_cvd_post_stroke_h_haz[,1], treatment_HR[,"fatal_cvd_post_stroke_h_haz"])
 	} 
 
 	## calculate cumulative incidences for first events

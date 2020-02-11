@@ -466,7 +466,7 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 			results = cbind(results,
 				calculate_intervention_results(prediction_years, cycle_length_days, data_years, 
 				survival_params_iteration, cost_matrix, hrql_matrix, patient, model_cycles, discount_factors,
-				treatment_HR, scenario, patient_number))
+				non_treatment_HR, scenario, patient_number))
 		}
 
 	
