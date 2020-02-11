@@ -6,7 +6,7 @@ prediction_years=70
 
 ## Enter the parameters
 
-fe_mi_haz=timedep_trt_eff(
+fe_mi_HR=timedep_trt_eff(
   "start_yr"=2,
   "end_yr"=3,
   "startHR"=0.5,
@@ -14,7 +14,7 @@ fe_mi_haz=timedep_trt_eff(
   "annual_discontinuation_rate"=0.05
 )
 
-fe_stroke_i_haz=timedep_trt_eff(
+fe_stroke_i_HR=timedep_trt_eff(
     "start_yr"=1,
     "end_yr"=1,
     "startHR"=1,
@@ -22,8 +22,8 @@ fe_stroke_i_haz=timedep_trt_eff(
     "annual_discontinuation_rate"=0
   )
   
-fe_fatal_cvd_haz=fatal_cvd_post_mi_haz=fatal_cvd_post_stroke_i_haz=
-  fatal_cvd_post_stroke_h_haz=fe_stroke_i_haz
+fe_fatal_cvd_HR=fatal_cvd_post_mi_HR=fatal_cvd_post_stroke_i_HR=
+  fatal_cvd_post_stroke_h_HR=fe_stroke_i_HR
 
 
 
@@ -32,12 +32,12 @@ fe_fatal_cvd_haz=fatal_cvd_post_mi_haz=fatal_cvd_post_stroke_i_haz=
 
 
 treatment_HR=data.frame(
-  "fe_mi_haz"=fe_mi_haz,
-  "fe_stroke_i_haz"=fe_stroke_i_haz,
-  "fe_fatal_cvd_haz"=fe_fatal_cvd_haz,
-  "fatal_cvd_post_mi_haz"=fatal_cvd_post_mi_haz,
-  "fatal_cvd_post_stroke_i_haz"=fatal_cvd_post_stroke_i_haz,
-  "fatal_cvd_post_stroke_h_haz"=fatal_cvd_post_stroke_h_haz)
+  "fe_mi_haz"=fe_mi_HR,
+  "fe_stroke_i_haz"=fe_stroke_i_HR,
+  "fe_fatal_cvd_haz"=fe_fatal_cvd_HR,
+  "fatal_cvd_post_mi_haz"=fatal_cvd_post_mi_HR,
+  "fatal_cvd_post_stroke_i_haz"=fatal_cvd_post_stroke_i_HR,
+  "fatal_cvd_post_stroke_h_haz"=fatal_cvd_post_stroke_h_HR)
 
 
 
