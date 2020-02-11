@@ -320,7 +320,10 @@ calculate_intervention_results = function(prediction_years, cycle_length_days, d
 	
 	# calculate lifeyears as the sum of those in non fatal states
 	life_years = rowSums(markov_trace[,!grepl("fatal",colnames(markov_trace))])*cycle_length_days/365
-	print(paste("patient: ",patient_number," - HR: ", treatment_HR ," - scenario: ",scenario," - baseline age: ",round(patient[1,"age0"]+70,2)," - life expectancy = ", round(patient[1,"age0"]+70+sum(life_years),2),sep=""))
+	
+	## Should delete all references to HR here
+	
+	print(paste("patient: ",patient_number," - scenario: ",scenario," - baseline age: ",round(patient[1,"age0"]+70,2)," - life expectancy = ", round(patient[1,"age0"]+70+sum(life_years),2),sep=""))
 	
 	qalys_1yr = rowSums(markov_trace * hrql_matrix[["hrql_matrix_1yr"]])
 	
@@ -348,7 +351,10 @@ calculate_intervention_results = function(prediction_years, cycle_length_days, d
 	# discount and then take cumulative sums and bind together into results object present per patient
 	results = cbind(scad,cycle_mi,cycle_stroke_i,cycle_stroke_h,cumsum(fe_mi),cumsum(fe_stroke_i),cumsum(fe_stroke_h),fatal_cvd,fatal_non_cvd,cumsum(life_years),cumsum(qalys_1yr),cumsum(qalys_const),cumsum(total_costs),cumsum(cvd_costs),cumsum(chd_costs),cumsum(discount_factors*life_years),cumsum(discount_factors*qalys_1yr),cumsum(discount_factors*qalys_const),cumsum(discount_factors*total_costs),cumsum(discount_factors*cvd_costs),cumsum(discount_factors*chd_costs))
 	colnames(results) = c("cycle_SCAD","cycle_mi","cycle_stroke_i","cycle_stroke_h","fe_mi","fe_stroke_i","fe_stroke_h","fatal_cvd","fatal_non_cvd","life_years","qalys_1year","qalys_const","total_costs","cvd_costs","chd_costs","discounted_life_years","discounted_qalys_1year","discounted_qalys_const","discounted_total_costs","discounted_cvd_costs","discounted_chd_costs") 
-	colnames(results) = paste(colnames(results),scenario,treatment_HR, sep="_")
+	
+	# Again, get rid of references to treatment HR here
+	
+	colnames(results) = paste(colnames(results),scenario,sep="_")
 	return(results)
 }
 
@@ -443,15 +449,18 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 	cycle_discount_rate = (1+annual_discount_rate)^(1/(365/cycle_length_days))-1
 	discount_factors = 1/(1+cycle_discount_rate)^(1:model_cycles)
 	
+	# Create the time-dependent hazard vectors
+	source("timedep_params.R")
+	
+	
 	# basecase no intervention results
 	results = calculate_intervention_results(prediction_years, cycle_length_days, data_years, 
 			survival_params_iteration, cost_matrix, hrql_matrix, patient, model_cycles, discount_factors,
-			treatment_HR = 1, scenario = "basecase", patient_number)
+			treatment_HR = non_treatment_HR, scenario = "basecase", patient_number)
 	
 	scenarios = c("fe_cvd")	
-	HRs = c(0.9,0.8,0.7,0.6)
 	
-	for(treatment_HR in HRs){
+	
 		for(scenario in scenarios){
 			# calculate model results for each treatment (represented by a HR) under each scenario 
 			results = cbind(results,
@@ -459,11 +468,13 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 				survival_params_iteration, cost_matrix, hrql_matrix, patient, model_cycles, discount_factors,
 				treatment_HR, scenario, patient_number))
 		}
-	}
+
 	
 	if(iteration_number > 0){
+	  dir.create(paste0("output/model_results/",patient_group,"/"), recursive=TRUE,showWarnings=FALSE)
 		filename = paste("output/model_results/",patient_group,"/ce_results_pat_",patient_number,"_iteration_",iteration_number,".csv",sep="")
 	} else {
+	  dir.create(paste0("output/model_summary/",patient_group,"/"), recursive=TRUE,showWarnings=FALSE)
 		filename = paste("output/model_summary/",patient_group,"/ce_results_pat_",patient_number,"_deterministic.csv",sep="")
 	}
 	write.csv(results,file=filename)	
