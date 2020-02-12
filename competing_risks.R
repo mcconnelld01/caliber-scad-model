@@ -8,8 +8,17 @@ library(flexsurv)
 
 
 
-## DMcC, 10/2/20: Import the function that applies the time dependent treatment effect
-source("timedep_functions.R")
+## DMcC, 12/2/20: 
+# The function beolw takes as input a vector of per-cycle cumulative hazards (without treatment),
+# as well as a vector of per-cycle treatment effects, and returns the cumulative hazards associated with 
+# this intervention.
+
+apply_timedep_eff = function(cumulative_hazards,trt_eff_vec)
+{
+  chdiff=(cumulative_hazards-c(0,cumulative_hazards[-length(cumulative_hazards)]))
+  trt_cumulative_hazards=cumsum(trt_eff_vec*chdiff)
+  return(trt_cumulative_hazards)
+}
 
 
 

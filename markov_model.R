@@ -9,6 +9,56 @@
 
 source("competing_risks.R")
 
+
+# DMcC, 12/2/20: This function creates a vector with length equal to the number of cycles
+# where each element is a per-cycle hazard ratio
+
+
+timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinuation_rate=0)
+{
+  
+  # Number of cycles
+  n=round((prediction_years+1)*365)
+  
+  # Proportion on treatment by cycle  
+  per_cycle_disc=1-(1-annual_discontinuation_rate)^(1/365)
+  on_trt=(1-per_cycle_disc)^seq(0,n)
+  
+  
+  # Calculate time-dependent treatment effect for those still on treatment
+  
+  start_cycle=ceiling(start_yr*365)
+  end_cycle=ceiling(end_yr*365)
+  trt_effect=rep(1,n+1)
+  
+  
+  for (t in 0:n)
+  {
+    # Apply the startHR until the waning effect begins
+    if (t<start_cycle)
+    {
+      trt_effect[t+1]=startHR
+    }
+    # Gradually move the HR towards the value of endHR
+    else if (t<end_cycle)
+    {
+      trt_effect[t+1]=startHR+(t+1-start_cycle)*(endHR-startHR)/(end_cycle-start_cycle)
+    }
+    else
+    {
+      trt_effect[t+1]=endHR
+    }
+  }
+  
+  # Combine treatment effect with discontinuations and return the cohort-level treatment effect
+  
+  return(trt_effect*on_trt+(1-on_trt))
+}
+
+
+
+
+
 ##########################################################################################
 # create transition probability matrix
 ##########################################################################################
@@ -397,7 +447,7 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 	print(paste("Running model for patient: ",patient_number, " iteration: ", iteration_number,sep=""))
 	
 	# set the model life cycle and the cycle length
-	prediction_years = 70
+	prediction_years <<- 70
 	cycle_length_days = 90
 	# decide how many years of data to base non-CVD hazards on
 	if(life_tables_only){ data_years = 0 } else { data_years = 10 }
@@ -450,7 +500,23 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 	discount_factors = 1/(1+cycle_discount_rate)^(1:model_cycles)
 	
 	# Create the time-dependent hazard vectors
-	source("timedep_params.R")
+	source("timedep_params.R",local=TRUE)
+	
+	## The code below simply constructs the required data frames - this could be inserted intothe Markov model bit
+	on_treatment_HR=data.frame(
+	  "fe_mi_haz"=fe_mi_HR,
+	  "fe_stroke_i_haz"=fe_stroke_i_HR,
+	  "fe_fatal_cvd_haz"=fe_fatal_cvd_HR,
+	  "fatal_cvd_post_mi_haz"=fatal_cvd_post_mi_HR,
+	  "fatal_cvd_post_stroke_i_haz"=fatal_cvd_post_stroke_i_HR,
+	  "fatal_cvd_post_stroke_h_haz"=fatal_cvd_post_stroke_h_HR)
+	
+	
+	
+	# Create a 'no treatment effect' data frame with all hazard ratios equal to 1 (for comaptibility when running base case)
+	non_treatment_HR=on_treatment_HR
+	non_treatment_HR[TRUE==TRUE]=1
+	
 	
 	
 	# basecase no intervention results
