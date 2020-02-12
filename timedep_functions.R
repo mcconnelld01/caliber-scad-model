@@ -51,15 +51,17 @@ timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinu
 
 apply_timedep_eff = function(cumulative_hazards,trt_eff_vec)
 {
-  n=length(cumulative_hazards)
-  trt_cumulative_hazards=rep(NA,n)
-  trt_cumulative_hazards[1]=cumulative_hazards[1]
-  for (i in 2:n)
-  {
-    trt_cumulative_hazards[i]=
-              trt_cumulative_hazards[i-1]+
-              trt_eff_vec[i]*(cumulative_hazards[i]-cumulative_hazards[i-1])
+  #n=length(cumulative_hazards)
+  #trt_cumulative_hazards=rep(NA,n)
+  chdiff=(cumulative_hazards-c(0,cumulative_hazards[-length(cumulative_hazards)]))
+  trt_cumulative_hazards=cumsum(trt_eff_vec*chdiff)
+  #trt_cumulative_hazards[1]=cumulative_hazards[1]
+  #for (i in 2:n)
+  #{
+  #  trt_cumulative_hazards[i]=
+  #            trt_cumulative_hazards[i-1]+
+  #            trt_eff_vec[i]*(cumulative_hazards[i]-cumulative_hazards[i-1])
     
-  }
+  #}
   return(trt_cumulative_hazards)
 }
