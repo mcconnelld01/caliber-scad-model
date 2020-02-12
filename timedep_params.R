@@ -1,21 +1,12 @@
-#source("timedep_functions.R")
-
-## Parameters for testing only
-#prediction_years=71
-#cycle_length_days=1
-
-
-# This is currently a flaw in my code; you need to make sure that prediction years is the same here
-#prediction_years=10
 
 ## Enter the parameters
 
 fe_mi_HR=timedep_trt_eff(
-  "start_yr"=5,
-  "end_yr"=5,
-  "startHR"=0.5,
+  "start_yr"=-2,
+  "end_yr"=-2,
+  "startHR"=0.6,
   "endHR"=1,
-  "annual_discontinuation_rate"=0.05
+  "annual_discontinuation_rate"=0.00
 )
 
 fe_stroke_i_HR=timedep_trt_eff(

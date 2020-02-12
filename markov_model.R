@@ -16,7 +16,17 @@ source("competing_risks.R")
 
 timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinuation_rate=0)
 {
+  # if no waning effect then set both start and end to prediction years +1
   
+  if (end_yr < 0)
+    {
+    start_yr=end_yr=prediction_years+1
+    }
+  else if (start_yr<0)
+  {
+    start_yr=end_yr
+  }
+   
   # Number of cycles
   n=round((prediction_years+1)*365)
   
@@ -27,29 +37,25 @@ timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinu
   
   # Calculate time-dependent treatment effect for those still on treatment
   
-  start_cycle=ceiling(start_yr*365)
-  end_cycle=ceiling(end_yr*365)
+  start_cycle=min(ceiling(start_yr*365)+1,n+1)
+  end_cycle=min(ceiling(end_yr*365)+1,n+1)
   trt_effect=rep(1,n+1)
   
   
-  for (t in 0:n)
-  {
-    # Apply the startHR until the waning effect begins
-    if (t<start_cycle)
-    {
-      trt_effect[t+1]=startHR
-    }
-    # Gradually move the HR towards the value of endHR
-    else if (t<end_cycle)
-    {
-      trt_effect[t+1]=startHR+(t+1-start_cycle)*(endHR-startHR)/(end_cycle-start_cycle)
-    }
-    else
-    {
-      trt_effect[t+1]=endHR
-    }
-  }
+  trt_effect[1:start_cycle]=startHR
   
+  if (end_cycle > start_cycle)
+  {
+    for (t in (start_cycle:(end_cycle-1)))
+      {
+      trt_effect[t+1]=startHR+(t+1-start_cycle)*(endHR-startHR)/(end_cycle-start_cycle)
+      }
+  }
+  if (end_cycle<(n+1))
+    {
+    trt_effect[end_cycle:(n+1)]=endHR
+    }
+    
   # Combine treatment effect with discontinuations and return the cohort-level treatment effect
   
   return(trt_effect*on_trt+(1-on_trt))
