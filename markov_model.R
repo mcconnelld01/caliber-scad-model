@@ -397,7 +397,7 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 	print(paste("Running model for patient: ",patient_number, " iteration: ", iteration_number,sep=""))
 	
 	# set the model life cycle and the cycle length
-	prediction_years = 70
+	prediction_years = 30
 	cycle_length_days = 90
 	# decide how many years of data to base non-CVD hazards on
 	if(life_tables_only){ data_years = 0 } else { data_years = 10 }
@@ -466,7 +466,7 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 			results = cbind(results,
 				calculate_intervention_results(prediction_years, cycle_length_days, data_years, 
 				survival_params_iteration, cost_matrix, hrql_matrix, patient, model_cycles, discount_factors,
-				non_treatment_HR, scenario, patient_number))
+				on_treatment_HR, scenario, patient_number))
 		}
 
 	

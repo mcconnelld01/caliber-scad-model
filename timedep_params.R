@@ -1,27 +1,29 @@
 source("timedep_functions.R")
 
 ## Parameters for testing only
-prediction_years=70
-cycle_length_days=90
+prediction_years=31
+cycle_length_days=1
 
 ## Enter the parameters
 
 fe_mi_HR=timedep_trt_eff(
-  "start_yr"=2,
-  "end_yr"=3,
+  "start_yr"=5,
+  "end_yr"=5,
   "startHR"=0.5,
   "endHR"=1,
   "annual_discontinuation_rate"=0.05
 )
 
 fe_stroke_i_HR=timedep_trt_eff(
-    "start_yr"=1,
-    "end_yr"=1,
-    "startHR"=1,
+    "start_yr"=5,
+    "end_yr"=5,
+    "startHR"=0.5,
     "endHR"=1,
-    "annual_discontinuation_rate"=0
+    "annual_discontinuation_rate"=0.05
   )
   
+fe_fatal_cvd_HR=fe_stroke_i_HR
+
 fe_fatal_cvd_HR=fatal_cvd_post_mi_HR=fatal_cvd_post_stroke_i_HR=
   fatal_cvd_post_stroke_h_HR=fe_stroke_i_HR
 
@@ -31,7 +33,7 @@ fe_fatal_cvd_HR=fatal_cvd_post_mi_HR=fatal_cvd_post_stroke_i_HR=
 
 
 
-treatment_HR=data.frame(
+on_treatment_HR=data.frame(
   "fe_mi_haz"=fe_mi_HR,
   "fe_stroke_i_haz"=fe_stroke_i_HR,
   "fe_fatal_cvd_haz"=fe_fatal_cvd_HR,
@@ -42,7 +44,7 @@ treatment_HR=data.frame(
 
 
 # Create a 'no treatment effect' data frame with all hazard ratios equal to 1
-non_treatment_HR=treatment_HR
+non_treatment_HR=on_treatment_HR
 non_treatment_HR[TRUE==TRUE]=1
 
 

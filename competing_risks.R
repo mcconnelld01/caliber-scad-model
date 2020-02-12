@@ -193,7 +193,7 @@ calculate_competing_risks_model = function(survival_params, patients, prediction
 	# reduce the first CVD event hazard rates except stroke h
 	if(scenario == "fe_cvd" | scenario == "all_cvd") {
 		fe_mi_haz[,1] = apply_timedep_eff(fe_mi_haz[,1],treatment_HR[,"fe_mi_haz"])
-		fe_stroke_i_haz[,1] = apply_timedep_eff(fe_stroke_i_haz[,1],treatment_HR[,"fe_stroke_i_haz"])
+  	fe_stroke_i_haz[,1] = apply_timedep_eff(fe_stroke_i_haz[,1],treatment_HR[,"fe_stroke_i_haz"])
 		fe_fatal_cvd_haz[,1] = apply_timedep_eff(fe_fatal_cvd_haz[,1],treatment_HR[,"fe_fatal_cvd_haz"])
 	}
 	
