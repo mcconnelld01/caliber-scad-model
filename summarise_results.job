@@ -1,6 +1,0 @@
-#$ -cwd -V
-#$ -l h_rt=1:00:00
-#$ -o logs
-#$ -e logs
-
-Rscript patient_results.R $PATIENT $PSA_ITER $PATIENT_GROUP
