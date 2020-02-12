@@ -1,6 +1,7 @@
 # This function creates a vector with length equal to the number of cycles
 # where each element is a per-cycle hazard ratio
 
+
 timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinuation_rate=0)
 {
   
@@ -51,12 +52,14 @@ timedep_trt_eff=function(start_yr=1,end_yr=1,startHR=1,endHR=1,annual_discontinu
 apply_timedep_eff = function(cumulative_hazards,trt_eff_vec)
 {
   n=length(cumulative_hazards)
-  trt_cumulative_hazards=cumulative_hazards[1]
-  for ( i in 2:n)
+  trt_cumulative_hazards=rep(NA,n)
+  trt_cumulative_hazards[1]=cumulative_hazards[1]
+  for (i in 2:n)
   {
-    trt_cumulative_hazards=c(trt_cumulative_hazards,
-                             trt_cumulative_hazards[i-1]+trt_eff_vec[i]*(cumulative_hazards[i]-cumulative_hazards[i-1])
-    )
+    trt_cumulative_hazards[i]=
+              trt_cumulative_hazards[i-1]+
+              trt_eff_vec[i]*(cumulative_hazards[i]-cumulative_hazards[i-1])
+    
   }
   return(trt_cumulative_hazards)
 }

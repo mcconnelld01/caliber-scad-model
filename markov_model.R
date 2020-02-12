@@ -397,7 +397,7 @@ run_model = function(patient_number, iteration_number, patient_group, patient_fi
 	print(paste("Running model for patient: ",patient_number, " iteration: ", iteration_number,sep=""))
 	
 	# set the model life cycle and the cycle length
-	prediction_years = 30
+	prediction_years = 70
 	cycle_length_days = 90
 	# decide how many years of data to base non-CVD hazards on
 	if(life_tables_only){ data_years = 0 } else { data_years = 10 }
